@@ -11,6 +11,6 @@ RUN apk add --no-cache --update libcurl freetype libpng libjpeg-turbo curl-dev f
     docker-php-ext-install -j$(nproc) gd && \
     docker-php-ext-install curl mysqli opcache pdo pdo_mysql && \
     docker-php-ext-enable curl mysqli opcache pdo pdo_mysql gd && \
-    apk del gcc g++ curl-dev libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
+    apk del curl-dev libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
     docker-php-source delete && \
     rm -rf /var/cache/apk/*
