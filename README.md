@@ -2,7 +2,7 @@
 Docker image based on official "7.2-fpm-alpine"
 
 ## Added image functions ##
-* support for timezones
+* support for timezones: To set timezone just set environment variable like "TZ=Europe/Prague"
 
 
 ## Added PHP Extensions ##
