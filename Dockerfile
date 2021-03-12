@@ -1,6 +1,8 @@
-FROM php:7.4-fpm-alpine
+ARG PHP_VERSION=7.4.16
 
-LABEL maintainer="Milos Svasek <Milos@Svasek.net>"
+FROM php:${PHP_VERSION}-fpm-alpine
+LABEL maintainer="Milos Svasek <Milos@Svasek.net>" \
+      php.version="${PHP_VERSION}"
 
 RUN apk add --no-cache --update tzdata libintl libcurl libzip freetype libpng libjpeg-turbo memcached unzip curl-dev freetype-dev libpng-dev libjpeg-turbo-dev zlib-dev libzip-dev gettext-dev && \
     docker-php-ext-configure gd --with-freetype --with-jpeg && \
