@@ -55,4 +55,4 @@ jobs:
         docker push $IMG_NAME:$VERSION
         docker push $IMG_NAME:${PHPVERSION}
         docker push $IMG_NAME:${PHPMAJOVER}
-        docker tag $IMG_NAME:build $IMG_NAME:${PHPMINOVER}
+        docker push $IMG_NAME:${PHPMINOVER}
