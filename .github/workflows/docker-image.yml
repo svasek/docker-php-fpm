@@ -1,0 +1,45 @@
+name: Docker Image CI
+
+on:
+  workflow_dispatch:
+  #push:
+  #  branches: [ main ]
+  #pull_request:
+  #  branches: [ main ]
+
+env:
+  IMG_NAME: svasek/php-fpm
+  
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $IMG_NAME:$(date +%s)
+    
+    - name: Tag and Push the Image
+      run: |
+        # Get Actions runner release version
+        PHPVERSION=$(docker inspect --format '{{ index .Config.Labels "PHP_VERSION"}}' $IMG_NAME)
+        # Change all uppercase to lowercase
+        IMG_NAME=$(echo $IMG_NAME | tr '[A-Z]' '[a-z]')
+        # Strip git ref prefix from version
+        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+        # Strip "v" prefix from tag name
+        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+        # Use Docker `latest` tag convention
+        [ "$VERSION" == "main" ] && VERSION=latest
+        echo IMG NAME=$IMG_NAME
+        echo VERSION =$VERSION
+        echo PHP VERSION=$PHPVERSION
+        # Add Tags
+        docker tag $IMG_NAME $IMG_NAME:${PHPVERSION}
+        docker tag $IMG_NAME $IMG_NAME:$VERSION
+       
+        # Push the Image
+        docker push $IMG_NAME:$VERSION
+        docker push $IMG_NAME:${PHPVERSION}
