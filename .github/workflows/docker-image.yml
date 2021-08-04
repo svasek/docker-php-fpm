@@ -9,6 +9,7 @@ on:
 
 env:
   IMG_NAME: svasek/php-fpm
+  REGISTRY: docker.io
   
 jobs:
 
@@ -17,13 +18,19 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
+    - name: Login to Docker Hub
+      uses: docker/login-action@v1
+      with:
+        username: ${{ github.actor }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
     
     - name: Build the Docker image
       run: docker build . --file Dockerfile --tag $IMG_NAME:$(date +%s)
     
     - name: Tag and Push the Image
       run: |
-        # Get Actions runner release version
+        # Get PHP release version
         PHPVERSION=$(docker inspect --format '{{ index .Config.Labels "PHP_VERSION"}}' $IMG_NAME)
         # Change all uppercase to lowercase
         IMG_NAME=$(echo $IMG_NAME | tr '[A-Z]' '[a-z]')
