@@ -31,8 +31,9 @@ jobs:
     - name: Tag and Push the Image
       run: |
         # Get PHP release version
-        PHPVERSION=$(docker inspect --format '{{ index .Config.Labels "PHP_VERSION"}}' $IMG_NAME)
-        PHPMAJOVER=$(echo ${PHPVERSION} | cut -d . -f 1,2)
+        PHPVERSION=$(docker inspect --format '{{ index .Config.Labels "php.version"}}' ${IMG_NAME}:build)
+        PHPMINOVER=$(echo ${PHPVERSION} | cut -d . -f 1,2)
+        PHPMAJOVER=$(echo ${PHPVERSION} | cut -d . -f 1)
         # Change all uppercase to lowercase
         IMG_NAME=$(echo $IMG_NAME | tr '[A-Z]' '[a-z]')
         # Strip git ref prefix from version
@@ -47,9 +48,11 @@ jobs:
         # Add Tags
         docker tag $IMG_NAME:build $IMG_NAME:${PHPVERSION}
         docker tag $IMG_NAME:build $IMG_NAME:${PHPMAJOVER}
+        docker tag $IMG_NAME:build $IMG_NAME:${PHPMINOVER}
         docker tag $IMG_NAME:build $IMG_NAME:$VERSION
        
         # Push the Image
         docker push $IMG_NAME:$VERSION
         docker push $IMG_NAME:${PHPVERSION}
         docker push $IMG_NAME:${PHPMAJOVER}
+        docker tag $IMG_NAME:build $IMG_NAME:${PHPMINOVER}
