@@ -2,57 +2,56 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
-  #push:
-  #  branches: [ main ]
-  #pull_request:
-  #  branches: [ main ]
+  # push:
+  #   branches: [ main ]
+  # pull_request:
+  #   branches: [ main ]
 
 env:
-  IMG_NAME: svasek/php-fpm
   REGISTRY: docker.io
-  
-jobs:
+  # IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: svasek/php-fpm
 
+jobs:
   build:
+
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
-    - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag $IMG_NAME:build
-    
-    - name: Tag and Push the Image
-      run: |
-        # Get PHP release version
-        PHPVERSION=$(docker inspect --format '{{ index .Config.Labels "php.version"}}' ${IMG_NAME}:build)
-        PHPMINOVER=$(echo ${PHPVERSION} | cut -d . -f 1,2)
-        PHPMAJOVER=$(echo ${PHPVERSION} | cut -d . -f 1)
-        # Change all uppercase to lowercase
-        IMG_NAME=$(echo $IMG_NAME | tr '[A-Z]' '[a-z]')
-        # Strip git ref prefix from version
-        VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-        # Strip "v" prefix from tag name
-        [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-        # Use Docker `latest` tag convention
-        [ "$VERSION" == "main" ] && VERSION=latest
-        echo IMG NAME=$IMG_NAME
-        echo VERSION =$VERSION
-        echo PHP VERSION=$PHPVERSION
-        # Add Tags
-        docker tag $IMG_NAME:build $IMG_NAME:${PHPVERSION}
-        docker tag $IMG_NAME:build $IMG_NAME:${PHPMAJOVER}
-        docker tag $IMG_NAME:build $IMG_NAME:${PHPMINOVER}
-        docker tag $IMG_NAME:build $IMG_NAME:$VERSION
-       
-        # Push the Image
-        docker push $IMG_NAME:$VERSION
-        docker push $IMG_NAME:${PHPVERSION}
-        docker push $IMG_NAME:${PHPMAJOVER}
-        docker push $IMG_NAME:${PHPMINOVER}
+      # Login against a Docker registry except on PR
+      # https://github.com/docker/login-action
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Get the PHP version
+        id: php
+        run: |
+          export PHPVERSION=$(grep 'PHP_VERSION=' Dockerfile | cut -d'=' -f2)
+          echo "::set-output name=full_version::${PHPVERSION}"
+          echo "::set-output name=mino_version::${PHPVERSION%.*}"
+          echo "::set-output name=majo_version::${PHPVERSION%%.*}"
+
+
+      # Build and push Docker image with Buildx (don't push on PR)
+      # https://github.com/docker/build-push-action
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: >-
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest,
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.php.outputs.full_version }},
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.php.outputs.mino_version }},
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.php.outputs.majo_version }}
