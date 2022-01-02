@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
       version:
         description: 'PHP Version to build'
-        required: false
+        required: true
         default: ''
 
 env:
