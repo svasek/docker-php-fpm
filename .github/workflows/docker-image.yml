@@ -2,6 +2,7 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
+    input:
       version:
         description: 'PHP Version to build'
         required: true
