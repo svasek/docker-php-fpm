@@ -2,10 +2,10 @@ name: Docker Image CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [ main ]
-  # pull_request:
-  #   branches: [ main ]
+      version:
+        description: 'PHP Version to build'
+        required: false
+        default: ''
 
 env:
   REGISTRY: docker.io
@@ -37,7 +37,11 @@ jobs:
       - name: Get the PHP version
         id: php
         run: |
-          export PHPVERSION=$(grep 'PHP_VERSION=' Dockerfile | cut -d'=' -f2)
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            export PHPVERSION="${{ github.event.inputs.version }}"
+          else
+            export PHPVERSION=$(grep 'PHP_VERSION=' Dockerfile | cut -d'=' -f2)
+          fi
           echo "::set-output name=full_version::${PHPVERSION}"
           echo "::set-output name=mino_version::${PHPVERSION%.*}"
           echo "::set-output name=majo_version::${PHPVERSION%%.*}"
@@ -50,6 +54,8 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
+          build-args: |
+            PHP_VERSION=${{ steps.php.outputs.full_version }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.php.outputs.full_version }}
