@@ -59,9 +59,9 @@ jobs:
           else
             export PHPVERSION=$(grep 'PHP_VERSION=' Dockerfile | cut -d'=' -f2)
           fi
-          echo "::set-output name=full_version::${PHPVERSION}"
-          echo "::set-output name=mino_version::${PHPVERSION%.*}"
-          echo "::set-output name=majo_version::${PHPVERSION%%.*}"
+          echo "full_version=${PHPVERSION}" >> $GITHUB_OUTPUT
+          echo "mino_version=${PHPVERSION%.*}" >> $GITHUB_OUTPUT
+          echo "majo_version=${PHPVERSION%%.*}" >> $GITHUB_OUTPUT
 
       # Prepare Docker tags
       # https://github.com/docker/metadata-action
