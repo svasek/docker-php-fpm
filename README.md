@@ -11,6 +11,11 @@ Docker image based on official "fpm-alpine" PHP image.
 * support for timezones: To set timezone just set environment variable like "TZ=Europe/Prague"
 
 
+## WARNING: 
+* The tag `latest` has been moved from branch `7.4` to `8.1` as PHP 7.4 reached end of life. 
+* If you want to continue using PHP in version 7.4 please use tag `7` or `7.4` instead.
+
+
 ## Added PHP Extensions ##
 * curl 
 * gd
