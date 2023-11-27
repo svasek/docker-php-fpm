@@ -1,7 +1,6 @@
-ARG ALPINE_VERSION=3.18 \
-    PHP_VERSION=8.2.12
+ARG PHP_VERSION=8.2.12
 
-FROM php:${PHP_VERSION}-fpm-alpine${ALPINE_VERSION}
+FROM php:${PHP_VERSION}-fpm-alpine
 LABEL maintainer="Milos Svasek <Milos@Svasek.net>" \
       alpine.version="${ALPINE_VERSION}" \
       php.version="${PHP_VERSION}"
