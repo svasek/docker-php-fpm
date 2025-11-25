@@ -1,4 +1,4 @@
-ARG PHP_VERSION=8.4.14
+ARG PHP_VERSION=8.4.15
 
 FROM php:${PHP_VERSION}-fpm-alpine
 LABEL maintainer="Milos Svasek <Milos@Svasek.net>" \
@@ -9,8 +9,9 @@ RUN apk add --no-cache --update tzdata libintl libcurl libzip freetype libpng li
       linux-headers curl-dev freetype-dev libpng-dev libjpeg-turbo-dev zlib-dev libzip-dev gettext-dev && \
       docker-php-ext-configure gd --with-freetype --with-jpeg && \
       docker-php-ext-install -j$(nproc) gd && \
-      docker-php-ext-install -j$(nproc) curl mysqli opcache pdo pdo_mysql gettext exif sockets zip  && \
-      docker-php-ext-enable curl mysqli opcache pdo pdo_mysql gettext exif sockets zip gd && \
+      docker-php-ext-install -j$(nproc) curl mysqli pdo pdo_mysql gettext exif sockets zip  && \
+      docker-php-ext-enable curl mysqli pdo pdo_mysql gettext exif sockets zip gd && \
+      if [[ "${PHP_VERSION}" < "8.5.0" ]]; then docker-php-ext-install -j$(nproc) opcache; docker-php-ext-enable opcache; fi && \
       apk del linux-headers curl-dev freetype-dev libpng-dev libjpeg-turbo-dev zlib-dev libzip-dev gettext-dev && \
       docker-php-source delete && \
       rm -rf /var/cache/apk/*
