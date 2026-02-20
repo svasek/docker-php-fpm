@@ -35,6 +35,7 @@ A lightweight **PHP-FPM** Docker image based on the official `php:fpm-alpine` im
 
 ## ⚠️ Version Notice
 
+- The `latest` and `8` tags now point to **PHP 8.5**.
 - The `latest` and `8` tags now point to **PHP 8.4**.
 - The `latest` tag was moved from **7.4** to **8.2**, since PHP 7.4 has reached end of life.
 - If you still need PHP **7.4**, please use the `7` or `7.4` tag explicitly.
