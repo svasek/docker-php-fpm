@@ -1,4 +1,5 @@
-ARG PHP_VERSION=8.5.3
+ARG PHP_VERSION=8.5.4 \
+    ALPINE_VERSION
 
 FROM php:${PHP_VERSION}-fpm-alpine
 LABEL maintainer="Milos Svasek <Milos@Svasek.net>" \

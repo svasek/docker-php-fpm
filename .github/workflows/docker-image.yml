@@ -63,6 +63,13 @@ jobs:
           echo "mino_version=${PHPVERSION%.*}" >> $GITHUB_OUTPUT
           echo "majo_version=${PHPVERSION%%.*}" >> $GITHUB_OUTPUT
 
+      # Get the Alpine version from the base image
+      - name: Get the Alpine version
+        id: alpine
+        run: |
+          ALPINE_VERSION=$(docker run --rm php:${{ steps.php.outputs.full_version }}-fpm-alpine cat /etc/alpine-release)
+          echo "version=${ALPINE_VERSION}" >> $GITHUB_OUTPUT
+
       # Prepare Docker tags
       # https://github.com/docker/metadata-action
       - name: Docker meta
@@ -85,5 +92,7 @@ jobs:
         with:
           context: .
           push: ${{ github.event_name != 'pull_request' }}
-          build-args: PHP_VERSION=${{ steps.php.outputs.full_version }}
+          build-args: |
+            PHP_VERSION=${{ steps.php.outputs.full_version }}
+            ALPINE_VERSION=${{ steps.alpine.outputs.version }}
           tags: ${{ steps.meta.outputs.tags }}
